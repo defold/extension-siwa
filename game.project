@@ -1,0 +1,20 @@
+[project]
+title = extension-siwa
+dependencies = https://github.com/andsve/dirtylarry/archive/master.zip
+
+[script]
+shared_state = 1
+
+[library]
+include_dirs = siwa
+
+[bootstrap]
+main_collection = /main/main.collectionc
+
+[display]
+width = 640
+height = 480
+
+[ios]
+bundle_identifier = com.defold.siwa
+
