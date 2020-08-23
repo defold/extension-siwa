@@ -57,7 +57,7 @@
 
   - name: STATE_NOT_FOUND
     type: number
-    desc: Credential state not found for the provided user id.
+    desc: The user can’t be found.
 
 
   - name: STATE_UNKNOWN
@@ -67,9 +67,24 @@
 
   - name: STATE_AUTHORIZED
     type: number
-    desc: The provided user id has authorized the app.
+    desc: The user is authorized.
 
 
   - name: STATE_REVOKED
     type: number
-    desc: The provided user id has revoked credential for the app.
+    desc: Authorization for the given user has been revoked.
+
+
+  - name: STATUS_UNKNOWN
+    type: number
+    desc: The system hasn’t determined whether the user might be a real person.
+
+
+  - name: STATUS_UNSUPPORTED
+    type: number
+    desc: The system can’t determine this user’s status as a real person.
+
+
+  - name: STATUS_LIKELY_REAL
+    type: number
+    desc: The user appears to be a real person.

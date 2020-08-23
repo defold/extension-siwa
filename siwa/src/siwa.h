@@ -11,12 +11,21 @@ enum SiwaCallbackCmd
 	CMD_AUTH_FAILED = 3
 };
 
+// https://developer.apple.com/documentation/authenticationservices/asauthorizationappleidprovidercredentialstate/asauthorizationappleidprovidercredentialauthorized?language=objc
 enum SiwaCredentialState
 {
 	STATE_UNKNOWN = 0,
 	STATE_AUTHORIZED = 1,
 	STATE_REVOKED = 2,
 	STATE_NOT_FOUND = 3
+};
+
+// https://developer.apple.com/documentation/authenticationservices/asuserdetectionstatus?language=objc
+enum SiwaUserDetectionStatus
+{
+	STATUS_UNSUPPORTED = 0,
+	STATUS_LIKELY_REAL = 1,
+	STATUS_UNKNOWN = 2
 };
 
 struct SiwaCallbackData
@@ -28,13 +37,13 @@ struct SiwaCallbackData
 
 	SiwaCallbackCmd m_cmd;
 	SiwaCredentialState m_state;
+	SiwaUserDetectionStatus m_userStatus;
 
 	char* m_identityToken;
 	char* m_userID;
 	char* m_email;
 	char* m_firstName;
 	char* m_familyName;
-	int m_userStatus;
 
 	char* m_message;
 };
@@ -65,9 +74,9 @@ void Siwa_InitCallbackData();
 void Siwa_ResetCallbackData();
 
 // Queue the credential check callback to be triggered next update call in the main thread.
-void Siwa_QueueCredentialCallback(char* userID, SiwaCredentialState state);
+void Siwa_QueueCredentialCallback(const char* userID, const SiwaCredentialState state);
 // Queue the sign in authorization callback to be triggered next update call in the main thread, when authorization succeeds.
-void Siwa_QueueAuthSuccessCallback(const char* identityToken, const char* userID, const char* email, const char* firstName, const char* familyName, int userStatus);
+void Siwa_QueueAuthSuccessCallback(const char* identityToken, const char* userID, const char* email, const char* firstName, const char* familyName, const SiwaUserDetectionStatus userStatus);
 // Queue the sign in authorization callback to be triggered next update call in the main thread, when authorization fails.
 void Siwa_QueueAuthFailureCallback(const char* message);
 

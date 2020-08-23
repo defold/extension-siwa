@@ -32,12 +32,12 @@ void Siwa_ResetCallbackData()
     free(g_SiwaCallbackData.m_message);
     g_SiwaCallbackData.m_message = 0;
 
-    g_SiwaCallbackData.m_userStatus = -1;
+    g_SiwaCallbackData.m_userStatus = STATUS_UNSUPPORTED;
     g_SiwaCallbackData.m_state = STATE_UNKNOWN;
     g_SiwaCallbackData.m_cmd = CMD_NONE;
 }
 
-void Siwa_QueueCredentialCallback(char* userID, SiwaCredentialState state)
+void Siwa_QueueCredentialCallback(const char* userID, const SiwaCredentialState state)
 {
     if(g_SiwaCallbackData.m_cmd != CMD_NONE) {
         dmLogError("Can't queue credential callback, already have a callback queued!");
@@ -50,7 +50,7 @@ void Siwa_QueueCredentialCallback(char* userID, SiwaCredentialState state)
 }
 
 
-void Siwa_QueueAuthSuccessCallback(const char* identityToken, const char* userID, const char* email, const char* firstName, const char* familyName, int userStatus)
+void Siwa_QueueAuthSuccessCallback(const char* identityToken, const char* userID, const char* email, const char* firstName, const char* familyName, const SiwaUserDetectionStatus userStatus)
 {
     if(g_SiwaCallbackData.m_cmd != CMD_NONE) {
         dmLogError("Can't queue auth success callback, already have a callback queued!");
@@ -259,6 +259,10 @@ static dmExtension::Result SiwaInitialize(dmExtension::Params* params)
         SETCONSTANT(STATE_UNKNOWN)
         SETCONSTANT(STATE_AUTHORIZED)
         SETCONSTANT(STATE_REVOKED)
+
+        SETCONSTANT(STATUS_UNKNOWN)
+        SETCONSTANT(STATUS_UNSUPPORTED)
+        SETCONSTANT(STATUS_LIKELY_REAL)
 
     #undef SETCONSTANT
 

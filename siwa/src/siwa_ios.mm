@@ -104,7 +104,17 @@ didCompleteWithAuthorization:(ASAuthorization *)authorization {
         const char* email = [appleIdCredential.email UTF8String];
         const char* givenName = [appleIdCredential.fullName.givenName UTF8String];
         const char* familyName = [appleIdCredential.fullName.familyName UTF8String];
-        const int userDetectionStatus = (int) appleIdCredential.realUserStatus;
+        SiwaUserDetectionStatus userDetectionStatus = STATUS_UNSUPPORTED;
+        if (appleIdCredential.realUserStatus == ASUserDetectionStatusLikelyReal)
+        {
+            userDetectionStatus = STATUS_LIKELY_REAL;
+        }
+        else if (appleIdCredential.realUserStatus == ASUserDetectionStatusUnknown)
+        {
+            userDetectionStatus = STATUS_UNKNOWN;
+        }
+
+        appleIdCredential.realUserStatus;
         NSString* tokenString = [[NSString alloc] initWithData:appleIdCredential.identityToken encoding:NSUTF8StringEncoding];
         const char* identityToken = [tokenString UTF8String];
 
