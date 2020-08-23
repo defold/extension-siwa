@@ -4,15 +4,15 @@ local lines = {}
 local function log(msg, ...)
     msg = msg:format(...)
     print(msg)
-    
+
     table.insert(lines, 1, msg)
     table.remove(lines, 10)
     gui.set_text(gui.get_node("test_text"), table.concat(lines, "\n"))
 end
 
-local function check_credentials_status(self, id)
-    log("check_credentials_status %s", id)
-    siwa.check_credentials_status(id, function(self, data)
+local function get_credential_state(self, id)
+    log("get_credential_state %s", id)
+    siwa.get_credential_state(id, function(self, data)
         for k,v in pairs(data) do
             log("%s: %s", k, tostring(v))
         end
@@ -30,7 +30,7 @@ local function authenticate(self)
 end
 
 local function is_siwa_supported()
-    return siwa and siwa.is_siwa_supported()
+    return siwa and siwa.is_supported()
 end
 
 function init(self)
@@ -47,7 +47,7 @@ function on_input(self, action_id, action)
     if is_siwa_supported() then
         dl:button("check", action_id, action, function()
             if self.user_id then
-                check_credentials_status(self, self.user_id)
+                get_credential_state(self, self.user_id)
             else
                 log("No user id. Login first")
             end

@@ -37,9 +37,9 @@ API_AVAILABLE(ios(13.0))
 // The possible results are revoked(0), authorized(1), and unknown(2).
 // In practice, we have recieved unknown when revoking permission to this test app
 // so we should treat both revoked and unknown as unauthorized.
-- (void) checkCredentialStatus
+- (void) getCredentialState
 {
-    char* userId = SiwaGetUserId();
+    char* userId = Siwa_GetUserId();
     NSString* user_id_string = [[NSString alloc] initWithUTF8String:userId];
 
     [self.m_idProvider getCredentialStateForUserID: user_id_string
@@ -70,7 +70,7 @@ API_AVAILABLE(ios(13.0))
             break;
         }
 
-        SiwaQueueCredentialCallback(userId, state);
+        Siwa_QueueCredentialCallback(userId, state);
     }];
 }
 
@@ -108,29 +108,22 @@ didCompleteWithAuthorization:(ASAuthorization *)authorization {
         NSString* tokenString = [[NSString alloc] initWithData:appleIdCredential.identityToken encoding:NSUTF8StringEncoding];
         const char* identityToken = [tokenString UTF8String];
 
-        SiwaQueueAuthSuccessCallback(identityToken, appleUserId, email, givenName, familyName, userDetectionStatus);
+        Siwa_QueueAuthSuccessCallback(identityToken, appleUserId, email, givenName, familyName, userDetectionStatus);
     }
     else
     {
-        SiwaQueueAuthFailureCallback("authorization failed!");
+        Siwa_QueueAuthFailureCallback("authorization failed!");
     }
 }
 
 // The Auth controller callback for getting an error during authorization
 - (void)authorizationController:(ASAuthorizationController *)controller
 didCompleteWithError:(NSError *)error {
-    SiwaQueueAuthFailureCallback("authorization error!");
+    Siwa_QueueAuthFailureCallback("authorization error!");
 }
 
 @end
 
-
-// Checks if Siwa is supported on this device by seeing if the main
-// class involved in all the siwa requests we use exists.
-bool SiwaIsAvailable()
-{
-    return ([ASAuthorizationAppleIDProvider class] != nil);
-}
 
 API_AVAILABLE(ios(13.0))
 static SiwaManager* g_SiwaManager = nil;
@@ -147,26 +140,33 @@ SiwaManager* GetSiwaManager()
 }
 
 API_AVAILABLE(ios(13.0))
-// Kicks off the request to check the credential state of a provided user id.
-void SiwaDoCheckStatus() {
+// Kicks off the request to get the credential state of a provided user id.
+void Siwa_PlatformDoGetCredentialState() {
     SiwaManager *siwaMan = GetSiwaManager();
-    [siwaMan checkCredentialStatus];
+    [siwaMan getCredentialState];
     return;
 }
 
 API_AVAILABLE(ios(13.0))
 // Kicks off the sign in with apple flow.
-void SiwaDoAuthentication() {
+void Siwa_PlatformDoAuthenticateWithApple() {
     SiwaManager *siwaMan = GetSiwaManager();
     [siwaMan loginWithUI];
 }
 
-void SiwaCheckStatusOfAppleID() {
-    SiwaDoCheckStatus();
+// Checks if Siwa is supported on this device by seeing if the main
+// class involved in all the siwa requests we use exists.
+bool Siwa_PlatformIsSupported()
+{
+    return ([ASAuthorizationAppleIDProvider class] != nil);
 }
 
-void SiwaAuthenticateWithApple() {
-    SiwaDoAuthentication();
+void Siwa_PlatformGetCredentialState() {
+    Siwa_PlatformDoGetCredentialState();
+}
+
+void Siwa_PlatformAuthenticateWithApple() {
+    Siwa_PlatformDoAuthenticateWithApple();
 }
 
 #endif

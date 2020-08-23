@@ -3,19 +3,17 @@
 #include "siwa.h"
 #include <dmsdk/sdk.h>
 
-
 #define MODULE_NAME "siwa"
 
 SiwaData g_SiwaData;
 SiwaCallbackData g_SiwaCallbackData;
 
-
-char* SiwaGetUserId()
+char* Siwa_GetUserId()
 {
     return g_SiwaData.m_userID;
 }
 
-void SiwaResetCallbackData()
+void Siwa_ResetCallbackData()
 {
     free(g_SiwaCallbackData.m_userID);
     g_SiwaCallbackData.m_userID = 0;
@@ -39,7 +37,7 @@ void SiwaResetCallbackData()
     g_SiwaCallbackData.m_cmd = CMD_NONE;
 }
 
-void SiwaQueueCredentialCallback(char* userID, SiwaCredentialState state)
+void Siwa_QueueCredentialCallback(char* userID, SiwaCredentialState state)
 {
     if(g_SiwaCallbackData.m_cmd != CMD_NONE) {
         dmLogError("Can't queue credential callback, already have a callback queued!");
@@ -52,7 +50,7 @@ void SiwaQueueCredentialCallback(char* userID, SiwaCredentialState state)
 }
 
 
-void SiwaQueueAuthSuccessCallback(const char* identityToken, const char* userID, const char* email, const char* firstName, const char* familyName, int userStatus)
+void Siwa_QueueAuthSuccessCallback(const char* identityToken, const char* userID, const char* email, const char* firstName, const char* familyName, int userStatus)
 {
     if(g_SiwaCallbackData.m_cmd != CMD_NONE) {
         dmLogError("Can't queue auth success callback, already have a callback queued!");
@@ -69,7 +67,7 @@ void SiwaQueueAuthSuccessCallback(const char* identityToken, const char* userID,
     g_SiwaCallbackData.m_message = strdup("");
 }
 
-void SiwaQueueAuthFailureCallback(const char* message)
+void Siwa_QueueAuthFailureCallback(const char* message)
 {
     if(g_SiwaCallbackData.m_cmd != CMD_NONE) {
         dmLogError("Can't queue auth error callback, already have a callback queued!");
@@ -81,7 +79,7 @@ void SiwaQueueAuthFailureCallback(const char* message)
 }
 
 
-void SiwaRunCallback()
+void Siwa_TriggerCallback()
 {
     lua_State* L = dmScript::GetCallbackLuaContext(g_SiwaData.m_callback);
     DM_LUA_STACK_CHECK(L, 0);
@@ -100,7 +98,7 @@ void SiwaRunCallback()
             lua_pushstring(L, g_SiwaCallbackData.m_userID);
             lua_settable(L, -3);
 
-            lua_pushstring(L, "credentials_state");
+            lua_pushstring(L, "credential_state");
             lua_pushnumber(L, g_SiwaCallbackData.m_state);
             lua_settable(L, -3);
         }
@@ -155,7 +153,7 @@ void SiwaRunCallback()
 }
 
 
-void SiwaSetupCallback(lua_State* L, int index)
+void Siwa_SetupCallback(lua_State* L, int index)
 {
     if (g_SiwaData.m_callback) {
         dmScript::DestroyCallback(g_SiwaData.m_callback);
@@ -163,23 +161,17 @@ void SiwaSetupCallback(lua_State* L, int index)
     g_SiwaData.m_callback = dmScript::CreateCallback(L, index);
 }
 
-void SiwaCleanupCallback() {
+void Siwa_CleanupCallback() {
     if (g_SiwaData.m_callback) {
         dmScript::DestroyCallback(g_SiwaData.m_callback);
         g_SiwaData.m_callback = 0;
     }
 }
 
-
-// Function for asking Apple if a provided user id currently grants us access to it for this app.
-// Expects: (a string containing the user id, and a callback that expects a self instance and a table containing results).
-// The callback will be triggered at some point later after getting a response from Apple.
-// The response will be SUCCESS whether or not the id granted us permission.
-// It will give us a status of 1 if the user is authorized, and 2 if it's not.
-int SiwaCheckStatusOfAppleID(lua_State* L){
+int Siwa_GetCredentialState(lua_State* L){
     DM_LUA_STACK_CHECK(L, 1);
 
-    if (!SiwaIsAvailable()) {
+    if (!Siwa_PlatformIsSupported()) {
         dmLogWarning("Sign in with Apple is not available");
         lua_pushboolean(L, 0);
         return 1;
@@ -192,37 +184,22 @@ int SiwaCheckStatusOfAppleID(lua_State* L){
         return 1;
     }
 
-    int num_args = lua_gettop(L);
-    if(num_args != 2) {
-        dmLogError("Incorrect number of args passed to SiwaCheckStatusOfAppleID!");
-        lua_pushboolean(L, 0);
-        return 1;
-    }
-
     luaL_checktype(L, 1, LUA_TSTRING);
     if (g_SiwaData.m_userID) free(g_SiwaData.m_userID);
     g_SiwaData.m_userID = strdup(lua_tostring(L, 1));
 
     luaL_checktype(L, 2, LUA_TFUNCTION);
-    SiwaSetupCallback(L, 2);
-    SiwaCheckStatusOfAppleID();
+    Siwa_SetupCallback(L, 2);
+    Siwa_PlatformGetCredentialState();
 
     lua_pushboolean(L, 1);
     return 1;
 }
 
-// Function for having a user sign in with Apple.
-// Expects: (a callback that expects a self instance and a table containing results).
-// The callback will be triggered at some point later after getting a response from Apple.
-// The first time a user signs in after granting permission to this app, the callback will give us a name and email
-// as well as a user id and identity token on success.
-// On subsequent logins, we will only get the user id and identity token.
-// On a failure, such as when the user cancels the login flow, we will get ERROR as a result, and a message
-// describing the error.
-int SiwaAuthenticateWithApple(lua_State* L) {
+int Siwa_AuthenticateWithApple(lua_State* L) {
     DM_LUA_STACK_CHECK(L, 1);
 
-    if (!SiwaIsAvailable()) {
+    if (!Siwa_PlatformIsSupported()) {
         dmLogWarning("Sign in with Apple is not available");
         lua_pushboolean(L, 0);
         return 1;
@@ -236,23 +213,22 @@ int SiwaAuthenticateWithApple(lua_State* L) {
     }
 
     luaL_checktype(L, 1, LUA_TFUNCTION);
-    SiwaSetupCallback(L, 1);
-    SiwaAuthenticateWithApple();
+    Siwa_SetupCallback(L, 1);
+    Siwa_PlatformAuthenticateWithApple();
 
     lua_pushboolean(L, 1);
     return 1;
 }
 
-int SiwaIsSupported(lua_State* L) {
+int Siwa_IsSupported(lua_State* L) {
     DM_LUA_STACK_CHECK(L, 1);
-    lua_pushboolean(L, SiwaIsAvailable());
+    lua_pushboolean(L, Siwa_PlatformIsSupported());
     return 1;
 }
 
-
 static dmExtension::Result SiwaAppInitialize(dmExtension::AppParams* params)
 {
-    SiwaResetCallbackData();
+    Siwa_ResetCallbackData();
     return dmExtension::RESULT_OK;
 }
 
@@ -263,9 +239,9 @@ static dmExtension::Result SiwaAppFinalize(dmExtension::AppParams* params)
 
 const luaL_reg lua_register[] =
 {
-    {"is_siwa_supported", SiwaIsSupported},
-    {"check_credentials_status", SiwaCheckStatusOfAppleID},
-    {"authenticate", SiwaAuthenticateWithApple},
+    {"is_supported", Siwa_IsSupported},
+    {"get_credential_state", Siwa_GetCredentialState},
+    {"authenticate", Siwa_AuthenticateWithApple},
     {0, 0}
 };
 
@@ -295,9 +271,9 @@ static dmExtension::Result SiwaUpdate(dmExtension::Params* params)
 {
     if(g_SiwaCallbackData.m_cmd != CMD_NONE)
     {
-        SiwaRunCallback();
-        SiwaResetCallbackData();
-        SiwaCleanupCallback();
+        Siwa_TriggerCallback();
+        Siwa_ResetCallbackData();
+        Siwa_CleanupCallback();
     }
     return dmExtension::RESULT_OK;
 }

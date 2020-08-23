@@ -58,36 +58,34 @@ struct SiwaData
     dmScript::LuaCallbackInfo* m_callback;
 };
 
-char* SiwaGetUserId();
+char* Siwa_GetUserId();
 
-void SiwaCheckForQueuedCallbacks();
-void SiwaInitCallbackData();
-void SiwaResetCallbackData();
+void Siwa_CheckForQueuedCallbacks();
+void Siwa_InitCallbackData();
+void Siwa_ResetCallbackData();
 
 // Queue the credential check callback to be triggered next update call in the main thread.
-void SiwaQueueCredentialCallback(char* userID, SiwaCredentialState state);
+void Siwa_QueueCredentialCallback(char* userID, SiwaCredentialState state);
 // Queue the sign in authorization callback to be triggered next update call in the main thread, when authorization succeeds.
-void SiwaQueueAuthSuccessCallback(const char* identityToken, const char* userID, const char* email, const char* firstName, const char* familyName, int userStatus);
+void Siwa_QueueAuthSuccessCallback(const char* identityToken, const char* userID, const char* email, const char* firstName, const char* familyName, int userStatus);
 // Queue the sign in authorization callback to be triggered next update call in the main thread, when authorization fails.
-void SiwaQueueAuthFailureCallback(const char* message);
+void Siwa_QueueAuthFailureCallback(const char* message);
 
-void SiwaRunCallback();
-
-void SiwaSetupCallback(lua_State* L, int index);
-
-void SiwaCleanupCallback();
+void Siwa_TriggerCallback();
+void Siwa_SetupCallback(lua_State* L, int index);
+void Siwa_CleanupCallback();
 
 // Trigged by a call from lua to check if sign in with apple is supported on this device.
-bool SiwaIsAvailable();
+bool Siwa_PlatformIsSupported();
 
 // Triggered by a call from lua to start the sign in with apple flow
 // expects the callback to be a reference number to the lua registry
 // expects the context to be reference number to the lua registry
-void SiwaAuthenticateWithApple();
+void Siwa_PlatformAuthenticateWithApple();
 
 // Triggered by a call from lua to check if a provided apple id grants this app permission to use that id.
 // expects the callback to be a reference number to the lua registry
 // expects the context to be reference number to the lua registry
-void SiwaCheckStatusOfAppleID();
+void Siwa_PlatformGetCredentialState();
 
 #endif
