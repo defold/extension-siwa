@@ -13,7 +13,7 @@ char* Siwa_GetUserId()
     return g_SiwaData.m_userID;
 }
 
-void Siwa_ResetCallbackData()
+static void Siwa_ResetCallbackData()
 {
     free(g_SiwaCallbackData.m_userID);
     g_SiwaCallbackData.m_userID = 0;
@@ -79,7 +79,7 @@ void Siwa_QueueAuthFailureCallback(const char* message)
 }
 
 
-void Siwa_TriggerCallback()
+static void Siwa_TriggerCallback()
 {
     lua_State* L = dmScript::GetCallbackLuaContext(g_SiwaData.m_callback);
     DM_LUA_STACK_CHECK(L, 0);
@@ -153,7 +153,7 @@ void Siwa_TriggerCallback()
 }
 
 
-void Siwa_SetupCallback(lua_State* L, int index)
+static void Siwa_SetupCallback(lua_State* L, int index)
 {
     if (g_SiwaData.m_callback) {
         dmScript::DestroyCallback(g_SiwaData.m_callback);
@@ -161,14 +161,14 @@ void Siwa_SetupCallback(lua_State* L, int index)
     g_SiwaData.m_callback = dmScript::CreateCallback(L, index);
 }
 
-void Siwa_CleanupCallback() {
+static void Siwa_CleanupCallback() {
     if (g_SiwaData.m_callback) {
         dmScript::DestroyCallback(g_SiwaData.m_callback);
         g_SiwaData.m_callback = 0;
     }
 }
 
-int Siwa_GetCredentialState(lua_State* L){
+static int Siwa_GetCredentialState(lua_State* L){
     DM_LUA_STACK_CHECK(L, 1);
 
     if (!Siwa_PlatformIsSupported()) {
@@ -196,7 +196,7 @@ int Siwa_GetCredentialState(lua_State* L){
     return 1;
 }
 
-int Siwa_AuthenticateWithApple(lua_State* L) {
+static int Siwa_AuthenticateWithApple(lua_State* L) {
     DM_LUA_STACK_CHECK(L, 1);
 
     if (!Siwa_PlatformIsSupported()) {
@@ -220,7 +220,7 @@ int Siwa_AuthenticateWithApple(lua_State* L) {
     return 1;
 }
 
-int Siwa_IsSupported(lua_State* L) {
+static int Siwa_IsSupported(lua_State* L) {
     DM_LUA_STACK_CHECK(L, 1);
     lua_pushboolean(L, Siwa_PlatformIsSupported());
     return 1;
