@@ -33,6 +33,18 @@
         type: table
         desc: The credential state (fields: user_id, credential_state)
 
+    examples:
+      - desc: |-
+            ```lua
+            siwa.get_credential_state(id, function(self, data)
+            	if data.credential_state == siwa.STATE_AUTHORIZED then
+            		print("User has still authorized the application", data.user_id)
+            	elseif data.credential_state == siwa.STATE_REVOKED then
+            		print("User has revoked authorization for the application", data.user_id)
+            	end
+            end)
+            ```
+
 #*****************************************************************************************************
 
   - name: authenticate
@@ -52,6 +64,19 @@
         type: table
         desc: The authentication result data (fields: user_id, identity_token, email, first_name, family_name, status, result)
 
+    examples:
+      - desc: |-
+            ```lua
+            siwa.authenticate(id, function(self, data)
+            	print(data.identity_token)
+            	print(data.user_id)
+            	print(data.first_name, data.family_name)
+            	print(data.email)
+            	if data.user_status == siwa.STATUS_LIKELY_REAL then
+            		print("Likely a real person")
+            	end
+            end)
+            ```
 
 #*****************************************************************************************************
 
