@@ -1,0 +1,90 @@
+- name: siwa
+  type: table
+  desc: Functions and constants for interacting Sign in with Apple.
+        [icon:ios]
+  members:
+
+#*****************************************************************************************************
+
+  - name: is_supported
+    type: function
+    desc: Check if Sign in with Apple is available (iOS 13+).
+
+
+#*****************************************************************************************************
+
+  - name: get_credential_state
+    type: function
+    desc: Get the credential state of a user.
+
+    parameters:
+    - name: user_id
+      type: string
+      desc: User id to get credential state for.
+    - name: callback
+      type: function
+      desc: Credential state callback function.
+      parameters:
+      - name: self
+        type: object
+        desc: The current object.
+
+      - name: state
+        type: table
+        desc: The credential state (fields: user_id, credential_state)
+
+#*****************************************************************************************************
+
+  - name: authenticate
+    type: function
+    desc: Show the Sign in with Apple UI
+
+    parameters:
+    - name: callback
+      type: function
+      desc: Authentication callback function.
+      parameters:
+      - name: self
+        type: object
+        desc: The current object.
+
+      - name: state
+        type: table
+        desc: The authentication result data (fields: user_id, identity_token, email, first_name, family_name, status, result)
+
+
+#*****************************************************************************************************
+
+  - name: STATE_NOT_FOUND
+    type: number
+    desc: The user can’t be found.
+
+
+  - name: STATE_UNKNOWN
+    type: number
+    desc: Unknown credential state.
+
+
+  - name: STATE_AUTHORIZED
+    type: number
+    desc: The user is authorized.
+
+
+  - name: STATE_REVOKED
+    type: number
+    desc: Authorization for the given user has been revoked.
+
+
+  - name: STATUS_UNKNOWN
+    type: number
+    desc: The system hasn’t determined whether the user might be a real person.
+
+
+  - name: STATUS_UNSUPPORTED
+    type: number
+    desc: The system can’t determine this user’s status as a real person.
+
+
+  - name: STATUS_LIKELY_REAL
+    type: number
+    desc: The user appears to be a real person.

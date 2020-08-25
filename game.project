@@ -13,8 +13,8 @@ main_collection = /main/main.collectionc
 
 [display]
 width = 640
-height = 480
+height = 1136
 
 [ios]
-bundle_identifier = com.defold.siwa
+bundle_identifier = com.defold.extension.siwa
 
