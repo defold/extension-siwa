@@ -31,7 +31,7 @@
 
       - name: state
         type: table
-        desc: The credential state (fields: user_id, credential_state)
+        desc: The credential state (user_id, credential_state)
 
     examples:
       - desc: |-
@@ -62,7 +62,7 @@
 
       - name: state
         type: table
-        desc: The authentication result data (fields: user_id, identity_token, email, first_name, family_name, status, result)
+        desc: The authentication result data (user_id, identity_token, email, first_name, family_name, status, result)
 
     examples:
       - desc: |-
