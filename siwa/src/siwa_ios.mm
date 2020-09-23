@@ -49,7 +49,7 @@ API_AVAILABLE(ios(13.0))
         // https://developer.apple.com/documentation/authenticationservices/asauthorizationappleidprovider/3175423-getcredentialstateforuserid?language=objc
         if (error) {
             NSString *errorMessage = [NSString stringWithFormat: @"getCredentialStateForUserID completed with error: %@", [error localizedDescription]];
-            dmLogError(errorMessage);
+            dmLogError([errorMessage UTF8String]);
         }
 
         SiwaCredentialState state = STATE_UNKNOWN;
@@ -131,7 +131,7 @@ didCompleteWithAuthorization:(ASAuthorization *)authorization {
 - (void)authorizationController:(ASAuthorizationController *)controller
 didCompleteWithError:(NSError *)error {
     NSString *errorMessage = [NSString stringWithFormat: @"Authorization error: %@", [error localizedDescription]];
-    Siwa_QueueAuthFailureCallback(errorMessage);
+    Siwa_QueueAuthFailureCallback([errorMessage UTF8String]);
 }
 
 @end
