@@ -1,30 +1,13 @@
 name: siwa
 
 platforms:
-    x86-osx:
-        context:
-            frameworks: []
-            flags: ["-std=c++11", "-stdlib=libc++"]
-            linkFlags: ["-stdlib=libc++"]
-            libs: ["c++"]
-
-    x86_64-osx:
+    osx:
         context:
             frameworks: []
             flags: ["-std=c++11", "-stdlib=libc++"]
             libs: ["c++"]
 
-    x86_64-ios:
-        context:
-            frameworks: ['AuthenticationServices']
-            defines:    ['SUPPORTS_SIWA']
-
-    armv7-ios:
-        context:
-            frameworks: ['AuthenticationServices']
-            defines:    ['SUPPORTS_SIWA']
-
-    arm64-ios:
+    ios:
         context:
             frameworks: ['AuthenticationServices']
             defines:    ['SUPPORTS_SIWA']
